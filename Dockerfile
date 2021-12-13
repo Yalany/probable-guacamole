@@ -1,6 +1,3 @@
 FROM openjdk:17
-COPY target/classes/com/yalany/regionstest/ /tmp
-WORKDIR /tmp
-ENTRYPOINT ["java","RegionsTestApplication"]
-
-
+COPY target/regions-test-0.0.1-SNAPSHOT.jar regions-test-0.0.1-SNAPSHOT.jar
+CMD java -jar regions-test-0.0.1-SNAPSHOT.jar
