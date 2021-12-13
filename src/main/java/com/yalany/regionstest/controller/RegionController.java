@@ -63,8 +63,7 @@ public class RegionController {
     if (region == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
-    var existingResource = regionMapper.findByName(region.getName());
-    if (existingResource != null) {
+    if (regionMapper.findByName(region.getName()) != null) {
       return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
     regionMapper.add(region);
