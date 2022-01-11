@@ -10,5 +10,5 @@ import lombok.Setter;
 public class Region {
   private Integer id;
   private String name;
-  private String short_name;
+  private String shortName;
 }

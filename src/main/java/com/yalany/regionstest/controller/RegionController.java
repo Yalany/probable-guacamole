@@ -5,6 +5,7 @@ import com.yalany.regionstest.model.Region;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,13 +26,12 @@ public class RegionController {
   private final RegionMapper regionMapper;
 
   @GetMapping("/all")
-  @Cacheable("regions")
   public ResponseEntity<List<Region>> getAll() {
     return new ResponseEntity<>(regionMapper.findAll(), HttpStatus.OK);
   }
 
   @GetMapping("/by_id/{id}")
-  @Cacheable("regions")
+  @Cacheable(value = "by_id", key = "#id")
   public ResponseEntity<Region> getById(@PathVariable Integer id) {
     if (id == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -40,7 +40,7 @@ public class RegionController {
   }
 
   @GetMapping("/by_name/{name}")
-  @Cacheable("regions")
+  @Cacheable(value = "by_name", key = "#name")
   public ResponseEntity<Region> getByName(@PathVariable String name) {
     if (name == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -49,7 +49,7 @@ public class RegionController {
   }
 
   @GetMapping("/by_short_name/{shortName}")
-  @Cacheable("regions")
+  @Cacheable(value = "by_short_name", key = "#shortName")
   public ResponseEntity<Region> getByShortName(@PathVariable String shortName) {
     if (shortName == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -58,7 +58,10 @@ public class RegionController {
   }
 
   @PostMapping()
-  @CacheEvict("regions")
+  @Caching(evict = {
+      @CacheEvict("by_id"),
+      @CacheEvict("by_name"),
+      @CacheEvict("by_short_name")})
   public ResponseEntity<Region> add(@RequestBody Region region) {
     if (region == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -70,8 +73,11 @@ public class RegionController {
     return new ResponseEntity<>(regionMapper.findByName(region.getName()), HttpStatus.CREATED);
   }
 
-  @PutMapping("/{id}")
-  @CacheEvict("regions")
+  @PutMapping()
+  @Caching(evict = {
+      @CacheEvict(value = "by_id", key = "#region?.id"),
+      @CacheEvict(value = "by_name", key = "#region?.name"),
+      @CacheEvict(value = "by_short_name", key = "#region?.shortName")})
   public ResponseEntity<Region> update(@RequestBody Region region) {
     if (region == null || region.getId() == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -85,7 +91,7 @@ public class RegionController {
   }
 
   @DeleteMapping("/by_id/{id}")
-  @CacheEvict("regions")
+  @CacheEvict(value = "by_id", key = "#id")
   public ResponseEntity<Object> deleteById(@PathVariable Integer id) {
     if (id == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -98,7 +104,7 @@ public class RegionController {
   }
 
   @DeleteMapping("/by_name/{name}")
-  @CacheEvict("regions")
+  @CacheEvict(value = "by_name", key = "#name")
   public ResponseEntity<Object> deleteByName(@PathVariable String name) {
     if (name == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -111,7 +117,7 @@ public class RegionController {
   }
 
   @DeleteMapping("/by_short_name/{shortName}")
-  @CacheEvict("regions")
+  @CacheEvict(value = "by_short_name", key = "#shortName")
   public ResponseEntity<Object> deleteByShortName(@PathVariable String shortName) {
     if (shortName == null) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
